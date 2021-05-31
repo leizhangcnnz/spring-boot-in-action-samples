@@ -1,4 +1,4 @@
-package readinglist;
+package com.manning.readinglist;
 
 
 import org.junit.jupiter.api.Test;
