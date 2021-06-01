@@ -19,29 +19,34 @@ public class Reader implements UserDetails {
   
   private String fullname;
   private String password;
-  
+
+  @Override
   public String getUsername() {
     return username;
   }
-  
-  public void setUsername(String username) {
+
+  public Reader setUsername(String username) {
     this.username = username;
+    return this;
   }
-  
+
   public String getFullname() {
     return fullname;
   }
-  
-  public void setFullname(String fullname) {
+
+  public Reader setFullname(String fullname) {
     this.fullname = fullname;
+    return this;
   }
-  
+
+  @Override
   public String getPassword() {
     return password;
   }
-  
-  public void setPassword(String password) {
+
+  public Reader setPassword(String password) {
     this.password = password;
+    return this;
   }
 
   @Override

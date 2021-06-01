@@ -4,6 +4,7 @@ import com.manning.readinglist.entity.Reader;
 import com.manning.readinglist.repository.ReaderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -42,19 +43,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .userDetailsService(username -> {
-                    List<Reader> readers = readerRepository.findAll();
-                    Reader reader = new Reader();
-                    reader.setUsername("admin");
-                    reader.setPassword("admin1");
-                    reader.setFullname("admin1");
-                    readers.add(reader);
-                    Optional<Reader> optionalReader = readers.stream().filter(reader1 -> username.equals(reader1.getUsername())).findAny();
-                    if (optionalReader.isPresent()) {
-                        return optionalReader.get();
-                    }
-                    throw new UsernameNotFoundException("User '" + username + "' not found.");
-                });
+        auth.inMemoryAuthentication().withUser("admin").roles("ADMIN").password("{noop}admin1");
+        auth.userDetailsService(username -> {
+            Example<Reader> reader = Example.of(new Reader().setUsername(username));
+            Optional<Reader> one = readerRepository.findOne(reader);
+            if (one.isPresent()) {
+                return one.get();
+            }
+            throw new UsernameNotFoundException("User '" + username + "' not found.");
+        });
     }
 }
