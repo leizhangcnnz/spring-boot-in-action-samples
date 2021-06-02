@@ -2,14 +2,19 @@ package readinglist;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Example;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.Optional;
+
+@Profile("development")
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Autowired
@@ -31,16 +36,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(
               AuthenticationManagerBuilder auth) throws Exception {
     auth
-      .userDetailsService(new UserDetailsService() {
-        @Override
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException {
-          UserDetails userDetails = readerRepository.findOne(username);
-          if (userDetails != null) {
-            return userDetails;
-          }
-          throw new UsernameNotFoundException("User '" + username + "' not found.");
+      .userDetailsService(username -> {
+        Example<Reader> reader = Example.of(new Reader().setUsername(username));
+        Optional<Reader> one = readerRepository.findOne(reader);
+        if (one.isPresent()) {
+          return one.get();
         }
+        throw new UsernameNotFoundException("User '" + username + "' not found.");
       });
   }
 
